@@ -15,7 +15,7 @@
                     <Icon type="ios-analytics"></Icon>
                     Item 3
                 </MenuItem>
-                <span @click="logout" style="color: rgba(255,255,255,.7); cursor: pointer">
+                <span style="color: rgba(255,255,255,.7); cursor: pointer">
                     退出
                 </span>
             </div>
