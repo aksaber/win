@@ -3,19 +3,19 @@
         <Menu mode="horizontal" theme="dark" active-name="1">
             <img class="layout-img" src="https://file.iviewui.com/admin-pro-dist/img/logo-dark.ab519d9f.png">
             <div class="layout-nav">
-                <MenuItem name="1">
+                <MenuItem name="1" style="color: #f6ca9d">
                     <Icon type="ios-navigate"></Icon>
                     Item 1
                 </MenuItem>
-                <MenuItem name="2">
+                <MenuItem name="2" style="color: #f6ca9d">
                     <Icon type="ios-keypad"></Icon>
                     Item 2
                 </MenuItem>
-                <MenuItem name="3">
+                <MenuItem name="3" style="color: #f6ca9d">
                     <Icon type="ios-analytics"></Icon>
                     Item 3
                 </MenuItem>
-                <span style="color: rgba(255,255,255,.7); cursor: pointer">
+                <span style="color: #f6ca9d; cursor: pointer">
                     退出
                 </span>
             </div>
