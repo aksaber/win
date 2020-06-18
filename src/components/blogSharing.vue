@@ -24,6 +24,15 @@
             <FormItem prop="abstract" label="概要">
                 <Input v-model="form.abstract" placeholder="概要" size="large" />
             </FormItem>
+            <FormItem prop="classify" label="分类">
+                <Select v-model="form.classify" multiple size="large">
+                    <Option
+                        v-for="item in classifyList"
+                        :key="item.id"
+                        :value="item.id"
+                    >{{item.name}}</Option>
+                </Select>
+            </FormItem>
             <FormItem prop="tag" label="标签">
                 <Tag
                     v-for="item in form.countTags"
@@ -86,11 +95,30 @@ export default {
                 countTags: [],
                 content: '',
                 abstract: '',
+                classify: [],
                 coverImage: ''
             },
             inputVisible: false,
             inputValue: '',
-            uploadList: []
+            uploadList: [],
+            classifyList: [
+                {
+                    id: 1,
+                    name: '风水案例'
+                },
+                {
+                    id: 2,
+                    name: '风水基础'
+                },
+                {
+                    id: 3,
+                    name: '奇门反馈'
+                },
+                {
+                    id: 4,
+                    name: '奇门基础'
+                }
+            ]
         }
     },
     mounted() {

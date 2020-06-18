@@ -62,8 +62,6 @@ export default {
             observeParents:true,//修改swiper的父元素时，自动初始化swiper
         });
         this.getBanner();
-        let a = this.encodeToGb2312('拆补局');
-        console.log(a);
     },
     methods: {
         encodeToGb2312(str) { 
