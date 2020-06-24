@@ -3,7 +3,7 @@
         <br>
         <h1>博文分享</h1>
         <br>
-        <Form :model="form" ref="formInline" :label-width="100" style="margin-bottom: 30px; width: 50%">
+        <Form :model="form" ref="formValidate" :rules="ruleValidate" :label-width="100" style="margin-bottom: 30px; width: 50%">
             <FormItem prop="date" label="日期">
                 <DatePicker
                     type="date"
@@ -21,15 +21,12 @@
             <FormItem prop="author" label="作者">
                 <Input v-model="form.author" placeholder="作者" size="large" />
             </FormItem>
-            <FormItem prop="abstract" label="概要">
-                <Input v-model="form.abstract" placeholder="概要" size="large" />
-            </FormItem>
             <FormItem prop="classify" label="分类">
                 <Select v-model="form.classify" multiple size="large">
                     <Option
                         v-for="item in classifyList"
                         :key="item.id"
-                        :value="item.id"
+                        :value="item.name"
                     >{{item.name}}</Option>
                 </Select>
             </FormItem>
@@ -73,10 +70,18 @@
         <div id="editor"></div>
         <br>
         <Button
-            @click="submit"
+            @click="submit('formValidate')"
             type="primary"
             class="right"
         >提交</Button>
+        
+        <Modal
+            v-model="submitShow"
+            title="提交博客"
+            @on-ok="addBlog"
+        >
+            <p>是否提交博客</p>
+        </Modal>
     </div>
 </template>
 
@@ -93,8 +98,6 @@ export default {
                 date: '',
                 date2: '',
                 countTags: [],
-                content: '',
-                abstract: '',
                 classify: [],
                 coverImage: ''
             },
@@ -118,7 +121,14 @@ export default {
                     id: 4,
                     name: '奇门基础'
                 }
-            ]
+            ],
+            ruleValidate: {
+                date: [{ required: true, message: '日期不能为空', trigger: 'blur' }],
+                title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
+                author: [{ required: true, message: '作者不能为空', trigger: 'blur' }],
+                classify: [{ required: true, message: '分类不能为空', trigger: 'blur', type: 'array' }]
+            },
+            submitShow: false
         }
     },
     mounted() {
@@ -138,40 +148,40 @@ export default {
         this.editor2.create();
     },
     methods: {
-        submit() {
-            const {
-                title,
-                author,
-                countTags,
-                content,
-                date,
-                abstract,
-                coverImage
-            } = this.form;
-            // 获取文本内容 - 读取html
-            const html = this.editor2.txt.html();
-            const url = 'http://localhost:3000/blog';
-            const options = {
-                method: 'POST',
-                headers: {
-                    // 'Content-Type': 'application/x-www-form-urlencoded' 
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    title: title,
-                    author: author,
-                    date: date,
-                    content: html,
-                    tag: countTags,
-                    abstract: abstract,
-                    coverImage: coverImage
+        submit(name) {
+            this.$refs[name].validate((valid) => {
+                const {
+                    title,
+                    author,
+                    countTags,
+                    date,
+                    coverImage
+                } = this.form;
+                // 获取文本内容 - 读取html
+                const html = this.editor2.txt.html();
+                const url = 'http://localhost:3000/blog';
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        // 'Content-Type': 'application/x-www-form-urlencoded' 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        author: author,
+                        date: date,
+                        content: html,
+                        tag: countTags,
+                        coverImage: coverImage
+                    })
+                };
+                fetch(url, options).then(res => {
+                    console.log(res);
+                    this.$Message.success('添加成功');
+                    location.reload();
+                }).catch(err => {
+                    console.log(err);
                 })
-            };
-            fetch(url, options).then(res => {
-                console.log(res);
-                this.$Message.success('添加成功');
-            }).catch(err => {
-                console.log(err);
             })
         },
         handleClose(tag) {

@@ -1,21 +1,10 @@
 <template>
     <Header>
         <Menu mode="horizontal" theme="dark" active-name="1">
-            <img class="layout-img" src="https://file.iviewui.com/admin-pro-dist/img/logo-dark.ab519d9f.png">
+            <!-- <img class="layout-img" src="https://file.iviewui.com/admin-pro-dist/img/logo-dark.ab519d9f.png"> -->
+            <div class="left" style="color: #cccdcf; font-size: 18px">Hibi风水排盘管理后台</div>
             <div class="layout-nav">
-                <MenuItem name="1" style="color: #f6ca9d">
-                    <Icon type="ios-navigate"></Icon>
-                    Item 1
-                </MenuItem>
-                <MenuItem name="2" style="color: #f6ca9d">
-                    <Icon type="ios-keypad"></Icon>
-                    Item 2
-                </MenuItem>
-                <MenuItem name="3" style="color: #f6ca9d">
-                    <Icon type="ios-analytics"></Icon>
-                    Item 3
-                </MenuItem>
-                <span style="color: #f6ca9d; cursor: pointer">
+                <span style="color: #f6ca9d; cursor: pointer" class="right">
                     退出
                 </span>
             </div>
