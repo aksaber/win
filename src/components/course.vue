@@ -1,6 +1,6 @@
 <template>
     <div class="Course">
-        <br>
+        <!-- <br>
         <h1>课程通知</h1>
         <br>
         <h2 class="center">前端展示轮播图</h2>
@@ -39,7 +39,16 @@
                     @click="delBanner(item)"
                 />
             </div>
+        </div> -->
+        <div style="margin-top: 20px">
+            <Input v-model="type" placeholder="分类" style="width: 250px"></Input>
+            <Button type="success" @click="add">新增分类</Button>
         </div>
+        <Table stripe border :columns="columnsData" :data="blogType" style="margin-top: 50px">
+            <template slot-scope="{ row, index }" slot="action">
+                <Button type="error" @click="delBlogType(row)">删除</Button>
+            </template>
+        </Table>
     </div>
 </template>
 
@@ -52,7 +61,27 @@ export default {
     data() {
         return {
             coverImage: [],
-            swiper: null
+            swiper: null,
+            type: '',
+            blogType: [],
+            columnsData: [
+                {
+                    type: 'index',
+                    width: 60,
+                    align: 'center'
+                },
+                {
+                    title: '分类名',
+                    key: 'name'
+                },
+                {
+                    title: '操作',
+                    slot: 'action',
+                    width: 200
+                }
+            ],
+            http: 'https://www.hibifsqm.com',
+            // http: 'http://localhost:3020',
         }
     },
     mounted() {
@@ -62,8 +91,56 @@ export default {
             observeParents:true,//修改swiper的父元素时，自动初始化swiper
         });
         this.getBanner();
+        // 获取博客分类列表
+        this.getBlogType();
     },
     methods: {
+        add() {
+            const url = `${this.http}/blog/addBlogType`;
+            fetch(url, {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    type: this.type
+                })
+            }).then(response => response.json())
+                .then(res => {
+                    if (res.code == 200) {
+                        this.$Message.success('添加成功');
+                        this.getBlogType();
+                    }
+                })
+        },
+        getBlogType() {
+            // 获取博客类型
+            const url = `${this.http}/blog/getBlogType`;
+            fetch(url).then(response => response.json())
+                .then(res => {
+                    this.blogType = res.data;
+            })
+        },
+        delBlogType(row) {
+            const url = `${this.http}/blog/delBlogType`;
+            fetch(url, {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: row.id
+                })
+                }).then(response => response.json())
+                .then(res => {
+                    if (res.code == 200) {
+                        this.$Message.success('删除成功');
+                        this.getBlogType()
+                    } else {
+                        this.$Message.error(res.data)
+                    }
+                })
+        },
         encodeToGb2312(str) { 
             var strOut=""; 
             var z='{0}';
@@ -95,7 +172,7 @@ export default {
             console.log(this.coverImage);
         },
         getBanner() {
-            const url = 'http://localhost:3000/banner/get'
+            const url = 'https://localhost:3000/banner/get'
             fetch(url).then(response => response.json())
                 .then(res => {
                     this.coverImage = res.data;
@@ -104,7 +181,7 @@ export default {
                 })
         },
         addBanner(item) {
-            const url = 'http://localhost:3000/banner/add';
+            const url = 'https://localhost:3000/banner/add';
             const options = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -120,7 +197,7 @@ export default {
             })
         },
         delBanner(item) {
-            const url = 'http://localhost:3000/banner/del';
+            const url = 'https://localhost:3000/banner/del';
             const options = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

@@ -1,87 +1,112 @@
 <template>
     <div class="blogSharing">
-        <br>
-        <h1>博文分享</h1>
-        <br>
-        <Form :model="form" ref="formValidate" :rules="ruleValidate" :label-width="100" style="margin-bottom: 30px; width: 50%">
-            <FormItem prop="date" label="日期">
-                <DatePicker
-                    type="date"
-                    size="large"
-                    v-model="form.date2"
-                    format="yyyy-MM-dd"
-                    placeholder="选择日期"
-                    @on-change="changeDate"
-                    style="width: 200px; z-index: 999"
-                ></DatePicker>
-            </FormItem>
-            <FormItem prop="title" label="博文标题">
-                <Input v-model="form.title" placeholder="博文标题" size="large" />
-            </FormItem>
-            <FormItem prop="author" label="作者">
-                <Input v-model="form.author" placeholder="作者" size="large" />
-            </FormItem>
-            <FormItem prop="classify" label="分类">
-                <Select v-model="form.classify" multiple size="large">
-                    <Option
-                        v-for="item in classifyList"
-                        :key="item.id"
-                        :value="item.name"
-                    >{{item.name}}</Option>
-                </Select>
-            </FormItem>
-            <FormItem prop="tag" label="标签">
-                <Tag
-                    v-for="item in form.countTags"
-                    :key="item"
-                    :name="item"
-                    closable
-                    @on-close="handleClose"
-                >{{item}}</Tag>
-                <Input
-                    class="input-new-tag"
-                    v-if="inputVisible"
-                    v-model="inputValue"
-                    ref="saveTagInput"
-                    size="small"
-                    @keyup.enter.native="handleInputConfirm"
-                    @blur.native.capture="handleInputConfirm"
-                />
-                <Button
-                    size="small"
-                    type="dashed"
-                    icon="md-add"
-                    @click="showInput"
-                    style="font-size: 12px"
-                >添加标签</Button>
-            </FormItem>
-            <FormItem prop="coverImage" label="封面图">
-                <Upload
-                    ref="upload"
-                    action="http://localhost:3000/upload"
-                    :on-success="uploadSuccess"
-                    :before-upload="beforeUpload"
-                    :max-size="102400"
-                >
-                    <Button icon="ios-cloud-upload-outline">上传封面图</Button>
-                </Upload>
-            </FormItem>
-        </Form>
-        <div id="editor"></div>
-        <br>
-        <Button
-            @click="submit('formValidate')"
-            type="primary"
-            class="right"
-        >提交</Button>
+        <Button type="primary" style="margin: 20px 0" @click="addShow = true">新增</Button>
+        <Table stripe border :columns="columnsData" :data="blogData" >
+            <template slot-scope="{ row, index }" slot="coverImage">
+                <img :src="row.coverImage" width="100">
+            </template>
+            <template slot-scope="{ row, index }" slot="action">
+                <Button type="error" @click="delBlog(row)">删除</Button>
+            </template>
+        </Table>
+        <Drawer
+            title="新增"
+            v-model="addShow"
+            width="1000"
+            :mask-closable="false"
+        >
+            <Form :model="form" ref="formValidate" :rules="ruleValidate" :label-width="100" style="margin-bottom: 30px; width: 50%">
+                <FormItem prop="date" label="日期">
+                    <DatePicker
+                        type="date"
+                        size="large"
+                        v-model="form.date2"
+                        format="yyyy-MM-dd"
+                        placeholder="选择日期"
+                        @on-change="changeDate"
+                        style="width: 200px; z-index: 999"
+                    ></DatePicker>
+                </FormItem>
+                <FormItem prop="title" label="博文标题">
+                    <Input v-model="form.title" placeholder="博文标题" size="large" />
+                </FormItem>
+                <FormItem prop="author" label="作者">
+                    <Input v-model="form.author" placeholder="作者" size="large" />
+                </FormItem>
+                <FormItem prop="type" label="分类">
+                    <Select v-model="form.type" size="large">
+                        <Option
+                            v-for="item in classifyList"
+                            :key="item.id"
+                            :value="item.id"
+                        >{{item.name}}</Option>
+                    </Select>
+                </FormItem>
+                <FormItem prop="tag" label="标签">
+                    <Tag
+                        v-for="item in form.countTags"
+                        :key="item"
+                        :name="item"
+                        closable
+                        @on-close="handleClose"
+                    >{{item}}</Tag>
+                    <Input
+                        class="input-new-tag"
+                        v-if="inputVisible"
+                        v-model="inputValue"
+                        ref="saveTagInput"
+                        size="small"
+                        @keyup.enter.native="handleInputConfirm"
+                        @blur.native.capture="handleInputConfirm"
+                    />
+                    <Button
+                        size="small"
+                        type="dashed"
+                        icon="md-add"
+                        @click="showInput"
+                        style="font-size: 12px"
+                    >添加标签</Button>
+                </FormItem>
+                <FormItem prop="coverImage" label="封面图">
+                    <Upload
+                        ref="upload"
+                        :action='uploadHttp'
+                        :on-success="uploadSuccess"
+                        :before-upload="beforeUpload"
+                        accept=".png,.jpg,.jpeg,.gif"
+                        :max-size="102400"
+                    >
+                        <Button icon="ios-cloud-upload-outline">上传封面图</Button>
+                    </Upload>
+                </FormItem>
+                <FormItem label="音乐">
+                    <Upload
+                        ref="upload2"
+                        :action='uploadHttp'
+                        :on-success="uploadSuccess2"
+                        :before-upload="beforeUpload2"
+                        accept=".mp3,.wave,.wma"
+                    >
+                        <Button icon="ios-cloud-upload-outline">上传音乐</Button>
+                    </Upload>
+                </FormItem>
+            </Form>
+            <div id="editor"></div>
+            <br>
+            <Button
+                @click="submit('formValidate')"
+                type="primary"
+                class="right"
+            >提交</Button>
+        </Drawer>
         
-        <Modal
+        <!-- <Modal
             v-model="submitShow"
             title="提交博客"
             @on-ok="addBlog"
         >
             <p>是否提交博客</p>
-        </Modal>
+        </Modal> -->
     </div>
 </template>
 
@@ -91,6 +116,37 @@ export default {
     name: 'BlogSharing',
     data() {
         return {
+            http: 'https://www.hibifsqm.com',
+            // http: 'http://localhost:3020',
+            uploadHttp: 'https://www.hibifsqm.com/blog/upload',
+            columnsData: [
+                {
+                    type: 'index',
+                    width: 60,
+                    align: 'center'
+                },
+                {
+                    title: '作者',
+                    key: 'author'
+                },
+                {
+                    title: '标题',
+                    key: 'title'
+                },
+                {
+                    title: '日期',
+                    key: 'date'
+                },
+                {
+                    title: '封面图',
+                    slot: 'coverImage'
+                },
+                {
+                    title: '操作',
+                    slot: 'action'
+                }
+            ],
+            blogData: [],
             editor2: null,
             form: {
                 title: '',
@@ -98,56 +154,90 @@ export default {
                 date: '',
                 date2: '',
                 countTags: [],
-                classify: [],
-                coverImage: ''
+                type: '',
+                coverImage: '',
+                audio: ''
             },
             inputVisible: false,
             inputValue: '',
             uploadList: [],
-            classifyList: [
-                {
-                    id: 1,
-                    name: '风水案例'
-                },
-                {
-                    id: 2,
-                    name: '风水基础'
-                },
-                {
-                    id: 3,
-                    name: '奇门反馈'
-                },
-                {
-                    id: 4,
-                    name: '奇门基础'
-                }
-            ],
+            uploadList2: [],
+            classifyList: [],
             ruleValidate: {
                 date: [{ required: true, message: '日期不能为空', trigger: 'blur' }],
                 title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
                 author: [{ required: true, message: '作者不能为空', trigger: 'blur' }],
-                classify: [{ required: true, message: '分类不能为空', trigger: 'blur', type: 'array' }]
+                type: [{ required: true, message: '分类不能为空', trigger: 'blur' }]
             },
-            submitShow: false
+            submitShow: false,
+            addShow: false
         }
     },
     mounted() {
         this.uploadList = this.$refs.upload.fileList;
+        this.uploadList2 = this.$refs.upload2.fileList;
         this.editor2 = new E('#editor');
         // 下面两个配置，使用其中一个即可显示“上传图片”的tab。但是两者不要同时使用！！！
         // editor.customConfig.uploadImgShowBase64 = true   // 使用 base64 保存图片
         // editor.customConfig.uploadImgServer = '/upload'  // 上传图片到服务器
         this.editor2.customConfig = {
             uploadFileName: 'file',
-            uploadImgServer: 'http://localhost:3000/upload',
+            uploadImgServer: `${this.http}/blog/upload`,
             // uploadImgMaxSize : 3 * 1024 * 1024 , // 将图片大小限制为 3M
             // uploadImgMaxLength : 1 , // 限制一次最多上传 1 张图片
         }
         // 监听上传的各个阶段
         this.toListenUp(this.editor2);
         this.editor2.create();
+        // 获取博客分类
+        this.getBlogType();
+        this.getList();
     },
     methods: {
+        getList() {
+            const url = `${this.http}/blog/list`;
+            fetch(url).then(response => response.json())
+                .then(res => {
+                    this.blogData = res.data;
+                })
+        },
+        delBlog(row) {
+            this.$Modal.confirm({
+                title: '删除博客',
+                content: '<p>是否删除博客</p>',
+                onOk: () => {
+                    const url = `${this.http}/blog/delBlog`;
+                    fetch(url, {
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: row.id
+                        })
+                        }).then(response => response.json())
+                        .then(res => {
+                            if (res.code == 200) {
+                                this.$Message.success('删除成功');
+                                this.getList()
+                            } else {
+                                this.$Message.error(res.data)
+                            }
+                        })
+                },
+                onCancel: () => {
+                    
+                }
+            });
+        },
+        getBlogType() {
+            // 获取博客类型
+          const url = `${this.http}/blog/getBlogType`;
+          fetch(url).then(response => response.json())
+            .then(res => {
+                this.classifyList = res.data;
+            })
+        },
         submit(name) {
             this.$refs[name].validate((valid) => {
                 const {
@@ -155,11 +245,13 @@ export default {
                     author,
                     countTags,
                     date,
+                    type,
+                    audio,
                     coverImage
                 } = this.form;
                 // 获取文本内容 - 读取html
-                const html = this.editor2.txt.html();
-                const url = 'http://localhost:3000/blog';
+                const html = this.removeWordXml(this.editor2.txt.html());
+                const url = `${this.http}/blog`;
                 const options = {
                     method: 'POST',
                     headers: {
@@ -172,17 +264,34 @@ export default {
                         date: date,
                         content: html,
                         tag: countTags,
+                        type: type,
+                        audio: audio,
                         coverImage: coverImage
                     })
                 };
                 fetch(url, options).then(res => {
                     console.log(res);
                     this.$Message.success('添加成功');
-                    location.reload();
+                    // location.reload();
                 }).catch(err => {
                     console.log(err);
                 })
             })
+        },
+        removeWordXml(text){
+            var html = text;
+            html = html.replace(/<\/?SPAN ?YES[^>]*>/gi, "");//  Remove  all  SPAN  tags
+            // html = html.replace(/<(\w[^>]*)  class=([^|>]*)([^>]*)/gi, "<$1$3");  //  Remove  Class  attributes
+            // html = html.replace(/<(\w[^>]*)  style="([^"]*)"([^>]*)/gi, "<$1$3");  //  Remove  Style  attributes
+            html = html.replace(/<(\w[^>]*)  lang=([^|>]*)([^>]*)/gi, "<$1$3");//  Remove  Lang  attributes
+            html = html.replace(/<\\?\?xml[^>]*>/gi, "");//  Remove  XML  elements  and  declarations
+            html = html.replace(/<\/?\w+:[^>]*>/gi, "");//  Remove  Tags  with  XML  namespace  declarations:  <o:p></o:p>
+            html = html.replace(/&nbsp;/, "");//  Replace  the  &nbsp;
+            html = html.replace(/\n(\n)*( )*(\n)*\n/gi, '\n');
+            //  Transform  <P>  to  <DIV>
+            // var  re  =  new  RegExp("(<P)([^>]*>.*?)(<//P>)","gi")  ;            //  Different  because  of  a  IE  5.0  error
+            //        html = html.replace(re, "<div$2</div>");
+            return html;
         },
         handleClose(tag) {
             this.form.countTags.splice(this.form.countTags.indexOf(tag), 1);
@@ -214,7 +323,20 @@ export default {
         },
         uploadSuccess(res, file, fileList) {
             // 获取上传的logo
-            this.form.coverImage = res.data.path;
+            this.form.coverImage = 'https://www.hibifsqm.com/' + res.data.path.replace('/var/www/fsnode/static/', '')
+        },
+        beforeUpload2() {
+            const check = this.uploadList2.length < 1;
+            if (!check) {
+                this.$Notice.warning({
+                    title: '只能上传一首'
+                });
+            }
+            return check;
+        },
+        uploadSuccess2(res, file, fileList) {
+            // 音乐的url
+            this.form.audio = 'https://www.hibifsqm.com/' + res.data.path.replace('/var/www/fsnode/static/', '')
         },
         toListenUp(editor) {
             let _this = this;
@@ -250,7 +372,7 @@ export default {
                     // insertImg 是插入图片的函数，editor 是编辑器对象，result 是服务器端返回的结果
 
                     // 举例：假如上传图片成功后，服务器端返回的是 {url:'....'} 这种格式，即可这样插入图片：
-                    var url = result.data.path;
+                    var url = 'https://www.hibifsqm.com/' + result.data.path.replace('/var/www/fsnode/static/', '')
                     // url = 'https://pic4.zhimg.com/80/v2-c44f7a9703f925a14b569047562bc7b2_720w.jpg'
                     insertImg(url)
 
