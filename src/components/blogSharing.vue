@@ -1,14 +1,21 @@
 <template>
     <div class="blogSharing">
-        <Button type="primary" style="margin: 20px 0" @click="addShow = true">新增</Button>
+        <Button type="primary" style="margin: 20px 0" @click="addBlog">新增</Button>
         <Table stripe border :columns="columnsData" :data="blogData" >
             <template slot-scope="{ row, index }" slot="coverImage">
                 <img :src="row.coverImage" width="100">
             </template>
             <template slot-scope="{ row, index }" slot="action">
+                <Button type="warning" @click="updateBlog(row)">编辑</Button>
                 <Button type="error" @click="delBlog(row)">删除</Button>
             </template>
         </Table>
+        <Page
+            :total="total"
+            :current="page"
+            @on-change="changePage"
+            style="margin-top: 20px"
+        />
         <Drawer
             title="新增"
             v-model="addShow"
@@ -20,7 +27,7 @@
                     <DatePicker
                         type="date"
                         size="large"
-                        v-model="form.date2"
+                        v-model="form.date"
                         format="yyyy-MM-dd"
                         placeholder="选择日期"
                         @on-change="changeDate"
@@ -74,10 +81,12 @@
                         :on-success="uploadSuccess"
                         :before-upload="beforeUpload"
                         accept=".png,.jpg,.jpeg,.gif"
+                        :show-upload-list="false"
                         :max-size="102400"
                     >
                         <Button icon="ios-cloud-upload-outline">上传封面图</Button>
                     </Upload>
+                    <img :src="form.coverImage" width="100" style="margin-top: 20px">
                 </FormItem>
                 <FormItem label="音乐">
                     <Upload
@@ -85,10 +94,12 @@
                         :action='uploadHttp'
                         :on-success="uploadSuccess2"
                         :before-upload="beforeUpload2"
+                        :show-upload-list="false"
                         accept=".mp3,.wave,.wma"
                     >
                         <Button icon="ios-cloud-upload-outline">上传音乐</Button>
                     </Upload>
+                    <a :href="form.audio" target="_blank">{{form.audio}}</a>
                 </FormItem>
             </Form>
             <div id="editor"></div>
@@ -146,13 +157,15 @@ export default {
                     slot: 'action'
                 }
             ],
+            total: 10,
+            page: 1,
             blogData: [],
             editor2: null,
             form: {
+                id: null,
                 title: '',
                 author: '',
                 date: '',
-                date2: '',
                 countTags: [],
                 type: '',
                 coverImage: '',
@@ -167,10 +180,11 @@ export default {
                 date: [{ required: true, message: '日期不能为空', trigger: 'blur' }],
                 title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
                 author: [{ required: true, message: '作者不能为空', trigger: 'blur' }],
-                type: [{ required: true, message: '分类不能为空', trigger: 'blur' }]
+                type: [{ type: 'number', required: true, message: '分类不能为空', trigger: 'change' }]
             },
             submitShow: false,
-            addShow: false
+            addShow: false,
+            isUpdate: false
         }
     },
     mounted() {
@@ -188,6 +202,40 @@ export default {
         }
         // 监听上传的各个阶段
         this.toListenUp(this.editor2);
+
+        // 表情面板可以有多个 tab ，因此要配置成一个数组。数组每个元素代表一个 tab 的配置
+        this.editor2.customConfig.emotions = [
+            {
+                // tab 的标题
+                title: '默认',
+                // type -> 'emoji' / 'image'
+                type: 'image',
+                // content -> 数组
+                content: [
+                    {
+                        alt: '[微笑]',
+                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/e3/2018new_weixioa02_org.png'
+                    },
+                    {
+                        alt: '[馋嘴]',
+                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/fa/2018new_chanzui_org.png'
+                    },
+                    {
+                        alt: '[挖鼻]',
+                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/9a/2018new_wabi_thumb.png'
+                    }
+                ]
+            },
+            {
+                // tab 的标题
+                title: 'emoji',
+                // type -> 'emoji' / 'image'
+                type: 'emoji',
+                // content -> 数组
+                content: ['😀', '😃', '😄', '😁', '😆']
+            }
+        ]
+
         this.editor2.create();
         // 获取博客分类
         this.getBlogType();
@@ -200,6 +248,32 @@ export default {
                 .then(res => {
                     this.blogData = res.data;
                 })
+        },
+        addBlog() {
+            this.form.id = null;
+            this.form.title = '';
+            this.form.author = '';
+            this.form.date = '';
+            this.form.countTags = [];
+            this.form.type = '';
+            this.form.coverImage = '';
+            this.form.audio = '';
+            this.editor2.txt.clear();
+            this.isUpdate = false;
+            this.addShow = true;
+        },
+        updateBlog(row) {
+            this.form.id = row.id;
+            this.form.title = row.title;
+            this.form.author = row.author;
+            this.form.date = row.date;
+            this.form.countTags = row.tag;
+            this.form.type = row.type;
+            this.form.coverImage = row.coverImage;
+            this.form.audio = row.audio;
+            this.isUpdate = true;
+            this.addShow = true;
+            this.editor2.txt.html(row.content);
         },
         delBlog(row) {
             this.$Modal.confirm({
@@ -240,42 +314,71 @@ export default {
         },
         submit(name) {
             this.$refs[name].validate((valid) => {
-                const {
-                    title,
-                    author,
-                    countTags,
-                    date,
-                    type,
-                    audio,
-                    coverImage
-                } = this.form;
-                // 获取文本内容 - 读取html
-                const html = this.removeWordXml(this.editor2.txt.html());
-                const url = `${this.http}/blog`;
-                const options = {
-                    method: 'POST',
-                    headers: {
-                        // 'Content-Type': 'application/x-www-form-urlencoded' 
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        title: title,
-                        author: author,
-                        date: date,
-                        content: html,
-                        tag: countTags,
-                        type: type,
-                        audio: audio,
-                        coverImage: coverImage
-                    })
-                };
-                fetch(url, options).then(res => {
-                    console.log(res);
-                    this.$Message.success('添加成功');
-                    // location.reload();
-                }).catch(err => {
-                    console.log(err);
-                })
+                if (valid) {
+                    const {
+                        id,
+                        title,
+                        author,
+                        countTags,
+                        date,
+                        type,
+                        audio,
+                        coverImage
+                    } = this.form;
+                    // 获取文本内容 - 读取html
+                    const html = this.removeWordXml(this.editor2.txt.html());
+                    const options = {
+                        method: 'POST',
+                        headers: {
+                            // 'Content-Type': 'application/x-www-form-urlencoded' 
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            title: title,
+                            author: author,
+                            date: date,
+                            content: html,
+                            tag: countTags,
+                            type: type,
+                            audio: audio,
+                            coverImage: coverImage
+                        })
+                    };
+                    if (!this.isUpdate) {
+                        // 新增
+                        const url = `${this.http}/blog`;
+                        fetch(url, options).then(response => response.json())
+                            .then(res => {
+                                if (res.code == 200) {
+                                    this.$Message.success('添加成功');
+                                    this.addShow = false;
+                                    this.getList();
+                                } else {
+                                    this.$Message.error(res.data);
+                                }
+                                // location.reload();
+                            }).catch(err => {
+                                console.log(err);
+                            })
+                    } else {
+                        const url = `${this.http}/blog/updateBlog`;
+                        fetch(url, options).then(response => response.json())
+                            .then(res => {
+                                if (res.code == 200) {
+                                    this.$Message.success('修改成功');
+                                    this.addShow = false;
+                                    this.getList();
+                                } else {
+                                    this.$Message.error(res.data);
+                                }
+                            }).catch(err => {
+                                console.log(err);
+                            })
+                    }
+                } else {
+
+                }
             })
         },
         removeWordXml(text){
@@ -298,7 +401,7 @@ export default {
         },
         showInput() {
             this.inputVisible = true;
-            this.$nextTick(_ => {
+            this.$nextTick(() => {
                 this.$refs.saveTagInput.$refs.input.focus();
             })
         },
@@ -313,30 +416,33 @@ export default {
             this.form.date = date;
         },
         beforeUpload() {
-            const check = this.uploadList.length < 1;
-            if (!check) {
-                this.$Notice.warning({
-                    title: '只能上传一张'
-                });
-            }
-            return check;
+            // const check = this.uploadList.length < 1;
+            // if (!check) {
+            //     this.$Notice.warning({
+            //         title: '只能上传一张'
+            //     });
+            // }
+            // return check;
         },
         uploadSuccess(res, file, fileList) {
             // 获取上传的logo
             this.form.coverImage = 'https://www.hibifsqm.com/' + res.data.path.replace('/var/www/fsnode/static/', '')
         },
         beforeUpload2() {
-            const check = this.uploadList2.length < 1;
-            if (!check) {
-                this.$Notice.warning({
-                    title: '只能上传一首'
-                });
-            }
-            return check;
+            // const check = this.uploadList2.length < 1;
+            // if (!check) {
+            //     this.$Notice.warning({
+            //         title: '只能上传一首'
+            //     });
+            // }
+            // return check;
         },
         uploadSuccess2(res, file, fileList) {
             // 音乐的url
             this.form.audio = 'https://www.hibifsqm.com/' + res.data.path.replace('/var/www/fsnode/static/', '')
+        },
+        changePage(size) {
+            console.log(size)
         },
         toListenUp(editor) {
             let _this = this;
@@ -354,18 +460,15 @@ export default {
                 success: function (xhr, editor, result) {
                     // 图片上传并返回结果，图片插入成功之后触发
                     // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象，result 是服务器端返回的结果
-                    // debugger
                     console.log(result, 'success')
                 },
                 fail: function (xhr, editor, result) {
                     // 图片上传并返回结果，但图片插入错误时触发
                     // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象，result 是服务器端返回的结果
-                    // debugger
                 },
                 error: function (xhr, editor) {
                     // 图片上传出错时触发
                     // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象
-                    // debugger
                 },
                 customInsert: function (insertImg, result, editor) {
                     // 图片上传并返回结果，自定义插入图片的事件（而不是编辑器自动插入图片！！！）

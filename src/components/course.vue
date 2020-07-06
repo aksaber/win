@@ -49,13 +49,19 @@
                 <Button type="error" @click="delBlogType(row)">删除</Button>
             </template>
         </Table>
+        <Page
+            :total="total"
+            :current="page"
+            @on-change="changePage"
+            style="margin-top: 20px"
+        />
     </div>
 </template>
 
 <script>
-import Swiper from 'swiper'
-import 'swiper/css/swiper.min.css'
-import 'swiper/js/swiper.min.js'
+// import Swiper from 'swiper'
+// import 'swiper/css/swiper.min.css'
+// import 'swiper/js/swiper.min.js'
 export default {
     name: 'Course',
     data() {
@@ -63,6 +69,8 @@ export default {
             coverImage: [],
             swiper: null,
             type: '',
+            total: 10,
+            page: 1,
             blogType: [],
             columnsData: [
                 {
@@ -85,12 +93,12 @@ export default {
         }
     },
     mounted() {
-        this.swiper = new Swiper('.swiper-container', {
-            autoplay: true,
-            observer:true,//修改swiper自己或子元素时，自动初始化swiper
-            observeParents:true,//修改swiper的父元素时，自动初始化swiper
-        });
-        this.getBanner();
+        // this.swiper = new Swiper('.swiper-container', {
+        //     autoplay: true,
+        //     observer:true,//修改swiper自己或子元素时，自动初始化swiper
+        //     observeParents:true,//修改swiper的父元素时，自动初始化swiper
+        // });
+        // this.getBanner();
         // 获取博客分类列表
         this.getBlogType();
     },
@@ -141,6 +149,9 @@ export default {
                     }
                 })
         },
+        changePage(size) {
+            console.log(size)
+        },
         encodeToGb2312(str) { 
             var strOut=""; 
             var z='{0}';
@@ -151,7 +162,7 @@ export default {
                     else if(code >= 19968 && code <= 40869){ 
                     var index = code - 19968; 
                     strOut += "%" + z.substr(index*4,2) + "%" + z.substr(index*4+2,2); 
-                } 
+                }
                 else{ 
                     strOut += "%" + str.charCodeAt(i).toString(16); 
                 } 

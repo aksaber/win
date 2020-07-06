@@ -10,7 +10,7 @@
                             <span style="color: #f6ca9d">系统管理</span>
                         </template>
                         <MenuItem name="1-1" to="/blogSharing" style="color: #f6ca9d">博文分享</MenuItem>
-                        <MenuItem name="1-2" to="/course" style="color: #f6ca9d">新增博客分类</MenuItem>
+                        <MenuItem name="1-2" to="/course" style="color: #f6ca9d">博文分类</MenuItem>
                     </Submenu>
                 </Menu>
             </Sider>
