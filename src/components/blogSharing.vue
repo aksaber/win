@@ -27,7 +27,7 @@
                     <DatePicker
                         type="date"
                         size="large"
-                        v-model="form.date"
+                        :value="form.date"
                         format="yyyy-MM-dd"
                         placeholder="选择日期"
                         @on-change="changeDate"
@@ -101,6 +101,9 @@
                     </Upload>
                     <a :href="form.audio" target="_blank">{{form.audio}}</a>
                 </FormItem>
+                <FormItem label="概要">
+                    <Input type="textarea" v-model="form.intro" maxlength="50"  show-word-limit rows=3></Input>
+                </FormItem>
             </Form>
             <div id="editor"></div>
             <br>
@@ -123,6 +126,14 @@
 
 <script>
 import E from 'wangeditor'
+import {
+    smileyEmoji,
+    flowerEmoji,
+    bellEmoji,
+    vehicleEmoji,
+    numberEmoji,
+    qqEmoji
+} from '../emoji'
 export default {
     name: 'BlogSharing',
     data() {
@@ -169,7 +180,8 @@ export default {
                 countTags: [],
                 type: '',
                 coverImage: '',
-                audio: ''
+                audio: '',
+                intro: ''
             },
             inputVisible: false,
             inputValue: '',
@@ -207,32 +219,27 @@ export default {
         this.editor2.customConfig.emotions = [
             {
                 // tab 的标题
-                title: '默认',
+                title: 'smiley',
                 // type -> 'emoji' / 'image'
                 type: 'image',
                 // content -> 数组
-                content: [
-                    {
-                        alt: '[微笑]',
-                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/e3/2018new_weixioa02_org.png'
-                    },
-                    {
-                        alt: '[馋嘴]',
-                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/fa/2018new_chanzui_org.png'
-                    },
-                    {
-                        alt: '[挖鼻]',
-                        src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/9a/2018new_wabi_thumb.png'
-                    }
-                ]
-            },
-            {
-                // tab 的标题
-                title: 'emoji',
-                // type -> 'emoji' / 'image'
-                type: 'emoji',
-                // content -> 数组
-                content: ['😀', '😃', '😄', '😁', '😆']
+                content: smileyEmoji
+            },{
+                title: 'flower',
+                type: 'image',
+                content: flowerEmoji
+            },{
+                title: 'bell',
+                type: 'image',
+                content: bellEmoji
+            },{
+                title: 'vehicle',
+                type: 'image',
+                content: vehicleEmoji
+            },{
+                title: 'number',
+                type: 'image',
+                content: numberEmoji
             }
         ]
 
@@ -258,6 +265,7 @@ export default {
             this.form.type = '';
             this.form.coverImage = '';
             this.form.audio = '';
+            this.form.intro = '';
             this.editor2.txt.clear();
             this.isUpdate = false;
             this.addShow = true;
@@ -271,6 +279,7 @@ export default {
             this.form.type = row.type;
             this.form.coverImage = row.coverImage;
             this.form.audio = row.audio;
+            this.form.intro = row.intro;
             this.isUpdate = true;
             this.addShow = true;
             this.editor2.txt.html(row.content);
@@ -295,7 +304,8 @@ export default {
                                 this.$Message.success('删除成功');
                                 this.getList()
                             } else {
-                                this.$Message.error(res.data)
+                                this.$Message.error(res.data);
+                                console.log(res.data)
                             }
                         })
                 },
@@ -322,6 +332,7 @@ export default {
                         countTags,
                         date,
                         type,
+                        intro,
                         audio,
                         coverImage
                     } = this.form;
@@ -341,6 +352,7 @@ export default {
                             content: html,
                             tag: countTags,
                             type: type,
+                            intro: intro,
                             audio: audio,
                             coverImage: coverImage
                         })
@@ -356,6 +368,7 @@ export default {
                                     this.getList();
                                 } else {
                                     this.$Message.error(res.data);
+                                    console.log(res.data)
                                 }
                                 // location.reload();
                             }).catch(err => {
@@ -371,6 +384,7 @@ export default {
                                     this.getList();
                                 } else {
                                     this.$Message.error(res.data);
+                                    console.log(res.data)
                                 }
                             }).catch(err => {
                                 console.log(err);

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
 import Home from '@/components/home'
+import Login from '@/components/login'
 import BlogSharing from '@/components/blogSharing'
 import Course from '@/components/course'
 
@@ -25,6 +25,11 @@ export default new Router({
             component: Course
           }
       ]
+    },
+    {
+        path: '/login',
+        name: 'Login',
+        component: Login
     }
   ]
 })

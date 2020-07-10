@@ -10,6 +10,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "js-cookie": "^2.2.1",
     "node-sass": "^4.14.1",
     "swiper": "^5.3.7",
     "view-design": "^4.2.0",
