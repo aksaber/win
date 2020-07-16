@@ -9,8 +9,9 @@
                             <Icon type="ios-navigate"></Icon>
                             <span style="color: #f6ca9d">系统管理</span>
                         </template>
-                        <MenuItem name="1-1" to="/blogSharing" style="color: #f6ca9d">博文分享</MenuItem>
-                        <MenuItem name="1-2" to="/course" style="color: #f6ca9d">博文分类</MenuItem>
+                        <MenuItem name="1-1" to="/blogSharing" style="color: #f6ca9d">博文分享管理</MenuItem>
+                        <MenuItem name="1-2" to="/course" style="color: #f6ca9d">博文分类管理</MenuItem>
+                        <MenuItem name="1-3" to="/bannerConfig" style="color: #f6ca9d">首页管理</MenuItem>
                     </Submenu>
                 </Menu>
             </Sider>

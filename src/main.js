@@ -14,7 +14,7 @@ const whiteList = ['/login']  //白名单，不需要登录的路由
 
 router.beforeEach((to, from, next) => {
     //判断该路由是否需要登录权限
-    if (Cookies.get('hasLogin')) {
+    if (Cookies.get('token')) {
         //如果已经登录
         if (to.path === '/login') {
             next({path: '/'});

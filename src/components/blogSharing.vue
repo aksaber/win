@@ -126,6 +126,7 @@
 
 <script>
 import E from 'wangeditor'
+import Cookies from 'js-cookie'
 import {
     smileyEmoji,
     flowerEmoji,
@@ -293,7 +294,8 @@ export default {
                     fetch(url, {
                         method: 'post',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Authorization': Cookies.get('token')
                         },
                         body: JSON.stringify({
                             id: row.id
@@ -342,7 +344,8 @@ export default {
                         method: 'POST',
                         headers: {
                             // 'Content-Type': 'application/x-www-form-urlencoded' 
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Authorization': Cookies.get('token')
                         },
                         body: JSON.stringify({
                             id: id,

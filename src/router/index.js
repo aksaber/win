@@ -4,6 +4,7 @@ import Home from '@/components/home'
 import Login from '@/components/login'
 import BlogSharing from '@/components/blogSharing'
 import Course from '@/components/course'
+import BannerConfig from '@/components/bannerConfig'
 
 Vue.use(Router)
 
@@ -23,6 +24,11 @@ export default new Router({
             path: '/course',
             name: 'Course',
             component: Course
+          },
+          {
+              path: '/bannerConfig',
+              name: 'BannerConfig',
+              component: BannerConfig
           }
       ]
     },

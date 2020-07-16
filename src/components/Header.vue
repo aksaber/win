@@ -18,7 +18,7 @@ export default {
     name: 'Headers',
     methods: {
         logout() {
-            Cookies.remove('hasLogin');
+            Cookies.remove('token');
             this.$router.push('/login');
         },
     }

@@ -1,45 +1,5 @@
 <template>
     <div class="Course">
-        <!-- <br>
-        <h1>课程通知</h1>
-        <br>
-        <h2 class="center">前端展示轮播图</h2>
-        <br>
-        <div class="swiper-container">
-            <div class="swiper-wrapper">
-                <div
-                    class="swiper-slide"
-                    v-for="item in coverImage"
-                    :key="item.uid"
-                >
-                    <img :src="item.url" style="width: 100%; height: 300px" />
-                </div>
-            </div>
-        </div>
-        <Upload
-            ref="upload"
-            action="http://localhost:3000/upload"
-            :on-success="uploadSuccess"
-            :show-upload-list="false"
-            :on-remove="uploadRemove"
-            :max-size="102400"
-            :format="['jpg','jpeg','png']"
-        >
-            <Button icon="ios-cloud-upload-outline">上传封面图</Button>
-        </Upload>
-        <div class="flex" style="margin-top: 10px">
-            <div v-for="item in coverImage" style="margin-right: 10px; position: relative">
-                <img
-                    :src="item.url"
-                    style="width: 300px; height: 300px"
-                />
-                <Icon
-                    type="ios-close"
-                    style="position: absolute; right: 5px; top: 5px; font-size: 32px; cursor: pointer"
-                    @click="delBanner(item)"
-                />
-            </div>
-        </div> -->
         <div style="margin-top: 20px">
             <Input v-model="type" placeholder="分类" style="width: 250px"></Input>
             <Button type="success" @click="add">新增分类</Button>
@@ -59,9 +19,7 @@
 </template>
 
 <script>
-// import Swiper from 'swiper'
-// import 'swiper/css/swiper.min.css'
-// import 'swiper/js/swiper.min.js'
+import Cookies from 'js-cookie'
 export default {
     name: 'Course',
     data() {
@@ -93,12 +51,6 @@ export default {
         }
     },
     mounted() {
-        // this.swiper = new Swiper('.swiper-container', {
-        //     autoplay: true,
-        //     observer:true,//修改swiper自己或子元素时，自动初始化swiper
-        //     observeParents:true,//修改swiper的父元素时，自动初始化swiper
-        // });
-        // this.getBanner();
         // 获取博客分类列表
         this.getBlogType();
     },
@@ -108,7 +60,8 @@ export default {
             fetch(url, {
                 method: 'post',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': Cookies.get('token')
                 },
                 body: JSON.stringify({
                     type: this.type
@@ -118,6 +71,8 @@ export default {
                     if (res.code == 200) {
                         this.$Message.success('添加成功');
                         this.getBlogType();
+                    } else {
+                        this.$Message.error(res.data);
                     }
                 })
         },
@@ -130,24 +85,34 @@ export default {
             })
         },
         delBlogType(row) {
-            const url = `${this.http}/blog/delBlogType`;
-            fetch(url, {
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json'
+            this.$Modal.confirm({
+                title: '删除分类',
+                content: '<p>是否删除博客分类</p>',
+                onOk: () => {
+                    const url = `${this.http}/blog/delBlogType`;
+                    fetch(url, {
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': Cookies.get('token')
+                        },
+                        body: JSON.stringify({
+                            id: row.id
+                        })
+                        }).then(response => response.json())
+                        .then(res => {
+                            if (res.code == 200) {
+                                this.$Message.success('删除成功');
+                                this.getBlogType()
+                            } else {
+                                this.$Message.error(res.data)
+                            }
+                        })
                 },
-                body: JSON.stringify({
-                    id: row.id
-                })
-                }).then(response => response.json())
-                .then(res => {
-                    if (res.code == 200) {
-                        this.$Message.success('删除成功');
-                        this.getBlogType()
-                    } else {
-                        this.$Message.error(res.data)
-                    }
-                })
+                onCancel: () => {
+                    
+                }
+            });
         },
         changePage(size) {
             console.log(size)
