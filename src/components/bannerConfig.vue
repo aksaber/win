@@ -45,6 +45,9 @@
                         <FormItem prop="url" label="跳转链接">
                             <Input v-model="addForm.url" placeholder="跳转链接" />
                         </FormItem>
+                        <FormItem prop="sort" label="排序">
+                            <InputNumber v-model="addForm.sort" placeholder="排序" style="width: 100%" />
+                        </FormItem>
                     </Form>
                 </Modal>
             </TabPane>
@@ -100,6 +103,11 @@ export default {
                 slot: 'url',
                 align: 'center'
             }, {
+                title: '排序',
+                key: 'sort',
+                align: 'center',
+                sortable: true
+            }, {
                 title: '操作',
                 slot: 'action',
                 width: 180,
@@ -111,11 +119,13 @@ export default {
             addForm: {
                 id: '',
                 image: '',
-                url: ''
+                url: '',
+                sort: ''
             },
             isUpdate: false,
             ruleInline: {
-                image: [{ required: true, message: '图片不能为空' }]
+                image: [{ required: true, message: '图片不能为空' }],
+                sort: [{ required: true, message: '排序不能为空' }],
             },
             column2: [{
                 title: '导航栏',
@@ -157,6 +167,7 @@ export default {
             this.addForm.id = row.id;
             this.addForm.image = row.image;
             this.addForm.url = row.url;
+            this.addForm.sort = row.sort;
             this.modalBanner = true;
         },
         addBanner() {

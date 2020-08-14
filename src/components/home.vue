@@ -12,6 +12,7 @@
                         <MenuItem name="1-1" to="/blogSharing" style="color: #f6ca9d">博文分享管理</MenuItem>
                         <MenuItem name="1-2" to="/course" style="color: #f6ca9d">博文分类管理</MenuItem>
                         <MenuItem name="1-3" to="/bannerConfig" style="color: #f6ca9d">首页管理</MenuItem>
+                        <MenuItem name="1-4" to="/anonymous" style="color: #f6ca9d">匿名占卜管理</MenuItem>
                     </Submenu>
                 </Menu>
             </Sider>

@@ -5,6 +5,7 @@ import Login from '@/components/login'
 import BlogSharing from '@/components/blogSharing'
 import Course from '@/components/course'
 import BannerConfig from '@/components/bannerConfig'
+import Anonymous from '@/components/anonymous'
 
 Vue.use(Router)
 
@@ -29,7 +30,12 @@ export default new Router({
               path: '/bannerConfig',
               name: 'BannerConfig',
               component: BannerConfig
-          }
+          },
+          {
+                path: '/anonymous',
+                name: 'Anonymous',
+                component: Anonymous
+          },
       ]
     },
     {
