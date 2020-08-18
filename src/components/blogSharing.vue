@@ -146,7 +146,7 @@ export default {
                 {
                     type: 'index',
                     width: 60,
-                    align: 'center'
+                    align: 'center',
                 },
                 {
                     title: '作者',
@@ -158,7 +158,8 @@ export default {
                 },
                 {
                     title: '日期',
-                    key: 'date'
+                    key: 'date',
+                    sortable: true
                 },
                 {
                     title: '封面图',

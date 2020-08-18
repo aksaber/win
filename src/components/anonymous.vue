@@ -17,6 +17,9 @@
             <template slot-scope="{ row, index }" slot="answer">
                 <div class="ellispsis" :title="row.answer">{{row.answer}}</div>
             </template>
+            <template slot-scope="{ row, index }" slot="paipanImage">
+                <img :src="row.paipanImage" width="100">
+            </template>
             <template slot-scope="{ row, index }" slot="action">
                 <Button type="warning" @click="answer(row)">解答</Button>
                 <Button type="error" @click="del(row.id)">删除</Button>
@@ -29,7 +32,7 @@
             width="1000"
             :mask-closable="false"
         >
-            <Form :model="form" :label-width="80">
+            <Form :model="form" :label-width="85">
                 <FormItem label="订单号">
                     <span>{{form.orders}}</span>
                 </FormItem>
@@ -44,6 +47,20 @@
                 </FormItem>
                 <FormItem label="解答">
                     <Input type="textarea" v-model="form.answer" rows="10"></Input>
+                </FormItem>
+                <FormItem label="九宫八卦图">
+                    <Upload
+                        ref="upload"
+                        :action='uploadHttp'
+                        :on-success="uploadSuccess"
+                        :before-upload="beforeUpload"
+                        accept=".png,.jpg,.jpeg,.gif"
+                        :show-upload-list="false"
+                        :max-size="102400"
+                    >
+                        <Button icon="ios-cloud-upload-outline">上传九宫八卦图</Button>
+                    </Upload>
+                    <img :src="form.paipanImage" style="margin-top: 20px">
                 </FormItem>
             </Form>
             <Button type="primary" style="float: right" @click="editAnonymous">解答</Button>
@@ -67,6 +84,7 @@ export default {
         return {
             http: 'https://www.hibifsqm.com',
             // http: 'http://localhost:3020',
+            uploadHttp: 'https://www.hibifsqm.com/blog/upload',
             anoData: [],
             columnsData: [
                 {
@@ -110,6 +128,11 @@ export default {
                     width: 300
                 },
                 {
+                    title: '九宫八卦图',
+                    slot: 'paipanImage',
+                    width: 120
+                },
+                {
                     title: '操作',
                     slot: 'action',
                     width: 180
@@ -120,7 +143,7 @@ export default {
                 orders: '',
                 payOrder: '',
                 question: '',
-                paipan: '',
+                paipanImage: '',
                 answer: '',
                 requestion: '',
             },
@@ -147,6 +170,7 @@ export default {
             this.form.question = row.question;
             this.form.answer = row.answer;
             this.form.time = row.time;
+            this.form.paipanImage = row.paipanImage;
             this.form.requestion = row.requestion;
             this.modalShow = true;
         },
@@ -201,6 +225,11 @@ export default {
                         console.log(res.data)
                     }
                 })
+        },
+        beforeUpload() {},
+        uploadSuccess(res, file, fileList) {
+            // 获取上传的logo
+            this.form.paipanImage = 'https://www.hibifsqm.com/' + res.data.path.replace('/var/www/fsnode/static/', '')
         },
         updateStatus() {
             // 更新
