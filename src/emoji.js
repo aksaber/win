@@ -1419,8 +1419,17 @@ export const vehicleEmoji = [
     }
 ];
 
-
-
+// 新版QQ表情
+let newqq = {};
+let newqqArr = [];
+for (let i = 0; i < 146; i++) {
+    newqq = {
+        alt: '',
+        src: `https://hibifsqm.com/source/emoji/${i+1}.gif`
+    }
+    newqqArr.push(newqq);
+}
+export const newqqEmoji = newqqArr;
 
 export const numberEmoji = [
     {
@@ -1728,3 +1737,5 @@ export const numberEmoji = [
         src: 'http://punchdrunker.github.io/iOSEmoji/table_html/numbers/numbers_10_02.png'
     }
 ];
+
+

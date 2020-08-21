@@ -5,14 +5,21 @@
             <template slot-scope="{ row, index }" slot="coverImage">
                 <img :src="row.coverImage" width="100">
             </template>
+            <template slot-scope="{ row, index }" slot="showBlog">
+                <Tag color="default" v-if="row.showBlog == 1">隐藏</Tag>
+                <Tag color="green" v-else>显示</Tag>
+            </template>
             <template slot-scope="{ row, index }" slot="action">
                 <Button type="warning" @click="updateBlog(row)">编辑</Button>
                 <Button type="error" @click="delBlog(row)">删除</Button>
+                <Button type="info" @click="hideBlog(row)">隐藏</Button>
+                <Button type="success" @click="showBlog(row)">显示</Button>
             </template>
         </Table>
         <Page
             :total="total"
-            :current="page"
+            :page-size="pageSize"
+            :current="currentPage"
             @on-change="changePage"
             style="margin-top: 20px"
         />
@@ -132,6 +139,7 @@ import {
     flowerEmoji,
     bellEmoji,
     vehicleEmoji,
+    newqqEmoji,
     numberEmoji,
     qqEmoji
 } from '../emoji'
@@ -166,12 +174,18 @@ export default {
                     slot: 'coverImage'
                 },
                 {
+                    title: '状态',
+                    slot: 'showBlog'
+                },
+                {
                     title: '操作',
-                    slot: 'action'
+                    slot: 'action',
+                    width: 300
                 }
             ],
-            total: 10,
-            page: 1,
+            total: 0,
+            currentPage: 1,
+            pageSize: 30,
             blogData: [],
             editor2: null,
             form: {
@@ -235,9 +249,9 @@ export default {
                 type: 'image',
                 content: bellEmoji
             },{
-                title: 'vehicle',
+                title: 'newqq',
                 type: 'image',
-                content: vehicleEmoji
+                content: newqqEmoji
             },{
                 title: 'number',
                 type: 'image',
@@ -252,10 +266,11 @@ export default {
     },
     methods: {
         getList() {
-            const url = `${this.http}/blog/list`;
+            const url = `${this.http}/blog/list?currentPage=${this.currentPage}&pageSize=${this.pageSize}`;
             fetch(url).then(response => response.json())
                 .then(res => {
                     this.blogData = res.data;
+                    this.total = res.total;
                 })
         },
         addBlog() {
@@ -305,6 +320,70 @@ export default {
                         .then(res => {
                             if (res.code == 200) {
                                 this.$Message.success('删除成功');
+                                this.getList()
+                            } else {
+                                this.$Message.error(res.data);
+                                console.log(res.data)
+                            }
+                        })
+                },
+                onCancel: () => {
+                    
+                }
+            });
+        },
+        hideBlog(row) {
+            this.$Modal.confirm({
+                title: '隐藏博客',
+                content: '<p>是否隐藏博客</p>',
+                onOk: () => {
+                    const url = `${this.http}/blog/hideBlog`;
+                    fetch(url, {
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': Cookies.get('token')
+                        },
+                        body: JSON.stringify({
+                            id: row.id,
+                            showBlog: 1
+                        })
+                        }).then(response => response.json())
+                        .then(res => {
+                            if (res.code == 200) {
+                                this.$Message.success('已隐藏');
+                                this.getList()
+                            } else {
+                                this.$Message.error(res.data);
+                                console.log(res.data)
+                            }
+                        })
+                },
+                onCancel: () => {
+                    
+                }
+            });
+        },
+        showBlog(row) {
+            this.$Modal.confirm({
+                title: '显示博客',
+                content: '<p>是否显示博客</p>',
+                onOk: () => {
+                    const url = `${this.http}/blog/hideBlog`;
+                    fetch(url, {
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': Cookies.get('token')
+                        },
+                        body: JSON.stringify({
+                            id: row.id,
+                            showBlog: null
+                        })
+                        }).then(response => response.json())
+                        .then(res => {
+                            if (res.code == 200) {
+                                this.$Message.success('已显示');
                                 this.getList()
                             } else {
                                 this.$Message.error(res.data);
@@ -460,7 +539,8 @@ export default {
             this.form.audio = 'https://www.hibifsqm.com/' + res.data.path.replace('/var/www/fsnode/static/', '')
         },
         changePage(size) {
-            console.log(size)
+            this.currentPage = size;
+            this.getList();
         },
         toListenUp(editor) {
             let _this = this;

@@ -2,7 +2,7 @@
     <div class="home">
         <Header></Header>
         <Layout>
-            <Sider width="256" hide-trigger :style="{background: '#191a23', 'min-height': 'calc(100vh - 64px)'}">
+            <Sider width="256" collapsible :style="{background: '#191a23', 'min-height': 'calc(100vh - 64px)'}">
                 <Menu theme="dark" width="auto" open-names="1">
                     <Submenu name="1">
                         <template slot="title">
