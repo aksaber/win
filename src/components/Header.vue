@@ -2,7 +2,8 @@
     <Header>
         <Menu mode="horizontal" theme="dark" active-name="1">
             <!-- <img class="layout-img" src="https://file.iviewui.com/admin-pro-dist/img/logo-dark.ab519d9f.png"> -->
-            <div class="left" style="color: #cccdcf; font-size: 18px">Hibi风水奇门工作坊博客管理后台</div>
+            <div class="left" style="color: #cccdcf; font-size: 18px" v-if="screenW > 768">Hibi风水奇门工作坊博客管理后台</div>
+            <div class="left" style="color: #cccdcf; font-size: 18px" v-else>博客后台</div>
             <div class="layout-nav">
                 <span style="color: #f6ca9d; cursor: pointer" class="right" @click="logout">
                     退出
@@ -16,6 +17,11 @@
 import Cookies from 'js-cookie'
 export default {
     name: 'Headers',
+    data() {
+        return {
+            screenW: document.body.clientWidth,
+        }
+    },
     methods: {
         logout() {
             Cookies.remove('token');
@@ -51,7 +57,6 @@ export default {
     margin-top: 8px;
 }
 .layout-nav{
-    width: 420px;
     margin: 0 auto;
     margin-right: 20px;
 }

@@ -2,8 +2,8 @@
     <div class="home">
         <Header></Header>
         <Layout>
-            <Sider width="256" collapsible :style="{background: '#191a23', 'min-height': 'calc(100vh - 64px)'}">
-                <Menu theme="dark" width="auto" open-names="1">
+            <Sider width="256" :style="{background: '#191a23', 'min-height': 'calc(100vh - 64px)'}" v-show="isShow">
+                <Menu theme="dark" width="auto" open-names="1" @on-select="selectMenu">
                     <Submenu name="1">
                         <template slot="title">
                             <Icon type="ios-navigate"></Icon>
@@ -16,6 +16,7 @@
                     </Submenu>
                 </Menu>
             </Sider>
+            <Icon type="md-menu" class="iconDown" @click="coll" v-show="screenW <= 768" />
             <Layout :style="{padding: '0 24px 24px'}">
                 <router-view></router-view>
             </Layout>
@@ -27,7 +28,26 @@
 import Header from './Header'
 export default {
     name: 'Home',
-    components: { Header }
+    components: { Header },
+    data() {
+        return {
+            screenW: document.body.clientWidth,
+            isShow: document.body.clientWidth > 768 ? true : false,
+        }
+    },
+    mounted() {
+        
+    },
+    methods: {
+        coll() {
+            this.isShow = !this.isShow;
+        },
+        selectMenu() {
+            if (document.body.clientWidth <= 768) {
+                this.isShow = false;
+            }
+        }
+    }
 }
 </script>
 
@@ -48,6 +68,12 @@ export default {
     }
     .ivu-icon {
         color: #f6ca9d;
+    }
+    .iconDown {
+        font-size: 25px;
+        position: absolute;
+        top: 17px;
+        left: 10px;
     }
 }
 </style>

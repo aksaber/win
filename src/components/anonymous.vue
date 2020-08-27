@@ -1,6 +1,6 @@
 <template>
     <div class="anonymous">
-        <Table stripe border :columns="columnsData" :data="anoData">
+        <Table stripe border :columns="columnsData" :data="anoData" v-if="screenW > 768">
             <template slot-scope="{ row, index }" slot="hasUpdate">
                 <Tag color="red" v-if="row.hasUpdate == '0'">新</Tag>
                 <Tag color="default" v-if="row.hasUpdate == '1'">已更新</Tag>
@@ -26,46 +26,105 @@
             </template>
         </Table>
 
-        <Drawer
-            title="解答"
-            v-model="modalShow"
-            width="1000"
-            :mask-closable="false"
-        >
-            <Form :model="form" :label-width="85">
-                <FormItem label="订单号">
-                    <span>{{form.orders}}</span>
-                </FormItem>
-                <FormItem label="支付凭证">
-                    <img :src="form.payOrder" @click="handleView(form.payOrder)" width="300" style="cursor: pointer">
-                </FormItem>
-                <FormItem label="占卜问题">
-                    <span>{{form.question}}</span>
-                </FormItem>
-                <FormItem label="再次提问">
-                    <span>{{form.requestion}}</span>
-                </FormItem>
-                <FormItem label="解答">
-                    <Input type="textarea" v-model="form.answer" rows="10"></Input>
-                </FormItem>
-                <FormItem label="九宫八卦图">
-                    <Upload
-                        ref="upload"
-                        :action='uploadHttp'
-                        :on-success="uploadSuccess"
-                        :before-upload="beforeUpload"
-                        accept=".png,.jpg,.jpeg,.gif"
-                        :show-upload-list="false"
-                        :max-size="102400"
-                    >
-                        <Button icon="ios-cloud-upload-outline">上传九宫八卦图</Button>
-                    </Upload>
-                    <img :src="form.paipanImage" style="margin-top: 20px">
-                </FormItem>
-            </Form>
-            <Button type="primary" style="float: right" @click="editAnonymous">解答</Button>
-            <Button type="success" style="float: right; margin-right: 20px" @click="updateStatus">更新解答</Button>
-        </Drawer>
+        <Table stripe border :columns="columnsMobileData" :data="anoData" v-if="screenW <= 768">
+            <template slot-scope="{ row, index }" slot="hasUpdate">
+                <Tag color="red" v-if="row.hasUpdate == '0'">新</Tag>
+                <Tag color="default" v-if="row.hasUpdate == '1'">已更新</Tag>
+            </template>
+            <template slot-scope="{ row, index }" slot="action">
+                <Button type="warning" @click="answer(row)">解答</Button>
+                <Button type="error" @click="del(row.id)">删除</Button>
+            </template>
+        </Table>
+
+        <div v-if="screenW > 768">
+            <Drawer
+                title="解答"
+                v-model="modalShow"
+                width="1000"
+                :mask-closable="false"
+            >
+                <Form :model="form" :label-width="85">
+                    <FormItem label="订单号">
+                        <span>{{form.orders}}</span>
+                    </FormItem>
+                    <FormItem label="支付凭证">
+                        <img :src="form.payOrder" @click="handleView(form.payOrder)" width="300" style="cursor: pointer">
+                    </FormItem>
+                    <FormItem label="占卜问题">
+                        <span>{{form.question}}</span>
+                    </FormItem>
+                    <FormItem label="再次提问">
+                        <span>{{form.requestion}}</span>
+                    </FormItem>
+                    <FormItem label="解答">
+                        <Input type="textarea" v-model="form.answer" rows="10"></Input>
+                    </FormItem>
+                    <FormItem label="九宫八卦图">
+                        <Upload
+                            ref="upload"
+                            :action='uploadHttp'
+                            :on-success="uploadSuccess"
+                            :before-upload="beforeUpload"
+                            accept=".png,.jpg,.jpeg,.gif"
+                            :show-upload-list="false"
+                            :max-size="102400"
+                        >
+                            <Button icon="ios-cloud-upload-outline">上传九宫八卦图</Button>
+                        </Upload>
+                        <img :src="form.paipanImage" style="margin-top: 20px">
+                    </FormItem>
+                </Form>
+                <Button type="primary" style="float: right" @click="editAnonymous">解答</Button>
+                <Button type="success" style="float: right; margin-right: 20px" @click="updateStatus">更新解答</Button>
+            </Drawer>
+        </div>
+        <div v-else>
+            <Modal
+                title="解答"
+                v-model="modalShow"
+                width="80%"
+                :closable="false"
+                :loading="loading"
+            >
+                <Form :model="form" :label-width="85">
+                    <FormItem label="订单号">
+                        <span>{{form.orders}}</span>
+                    </FormItem>
+                    <FormItem label="支付凭证">
+                        <img :src="form.payOrder" @click="handleView(form.payOrder)" width="100%" style="cursor: pointer">
+                    </FormItem>
+                    <FormItem label="占卜问题">
+                        <span>{{form.question}}</span>
+                    </FormItem>
+                    <FormItem label="再次提问">
+                        <span>{{form.requestion}}</span>
+                    </FormItem>
+                    <FormItem label="解答">
+                        <Input type="textarea" v-model="form.answer" rows="10"></Input>
+                    </FormItem>
+                    <FormItem label="九宫八卦图">
+                        <Upload
+                            ref="upload"
+                            :action='uploadHttp'
+                            :on-success="uploadSuccess"
+                            :before-upload="beforeUpload"
+                            accept=".png,.jpg,.jpeg,.gif"
+                            :show-upload-list="false"
+                            :max-size="102400"
+                        >
+                            <Button icon="ios-cloud-upload-outline">上传九宫八卦图</Button>
+                        </Upload>
+                        <img :src="form.paipanImage" style="margin-top: 20px; width: 100%">
+                    </FormItem>
+                </Form>
+                <div slot="footer">
+                    <Button type="error" @click="modalShow = false">关闭</Button>
+                    <Button type="success" @click="updateStatus">更新解答</Button>
+                    <Button type="primary" @click="editAnonymous">解答</Button>
+                </div>
+            </Modal>
+        </div>
 
         <!--预览大图-->
         <Modal title="查看大图" v-model="visibleImg" width="60%">
@@ -82,6 +141,7 @@ export default {
     name: 'Anonymous',
     data() {
         return {
+            screenW: document.body.clientWidth,
             http: 'https://www.hibifsqm.com',
             // http: 'http://localhost:3020',
             uploadHttp: 'https://www.hibifsqm.com/blog/upload',
@@ -138,6 +198,16 @@ export default {
                     width: 180
                 }
             ],
+            columnsMobileData: [
+                {
+                    title: '查看状态',
+                    slot: 'hasUpdate',
+                },
+                {
+                    title: '操作',
+                    slot: 'action'
+                }
+            ],
             form: {
                 id: '',
                 orders: '',
@@ -150,6 +220,7 @@ export default {
             modalShow: false,
             visibleImg: false,
             imgUrl: '',
+            loading: true
         }
     },
     mounted() {

@@ -139,7 +139,7 @@ import {
     flowerEmoji,
     bellEmoji,
     vehicleEmoji,
-    newqqEmoji,
+    // newqqEmoji,
     numberEmoji,
     qqEmoji
 } from '../emoji'
@@ -248,10 +248,6 @@ export default {
                 title: 'bell',
                 type: 'image',
                 content: bellEmoji
-            },{
-                title: 'newqq',
-                type: 'image',
-                content: newqqEmoji
             },{
                 title: 'number',
                 type: 'image',
