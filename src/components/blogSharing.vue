@@ -415,7 +415,8 @@ export default {
                         coverImage
                     } = this.form;
                     // 获取文本内容 - 读取html
-                    const html = this.removeWordXml(this.editor2.txt.html());
+                    let html = this.removeWordXml(this.editor2.txt.html());
+                    html = html.replace("'", "’");
                     const options = {
                         method: 'POST',
                         headers: {
